@@ -24,8 +24,4 @@ public:
 
 private:
     TFT_eSPI tft;
-    /**
-     * TODO
-     * WRITE YOUR PRIVATE MEMBERS AND FUNCTIONS HEADERS HERE
-     */
 };
