@@ -1,10 +1,73 @@
 #include "display.h"
-
+#include "power.h"
 /**
  * TODO
  * WRITE YOUR CLASS FUNCTION IMPLEMENTATIONS HERE
  */
+TFT_eSPI tft;
 
+void Display::setupDisplay()
+{
+    setupPower();
+    enableDisplayPower();
+
+    tft.init();
+    tft.setRotation(2);
+    tft.fillScreen(TFT_BLACK);
+    /*
+    this->drawString("Hello, World!", 180, 100, TFT_RED);
+    this->drawWiFiSymbol(30, 30);
+    this->drawHomeSymbol(30, 70);
+    this->drawString("Battery: " + String(getBatteryPercentage()) + "%" + String(isCharging()), 30, 150, TFT_CYAN);
+    this->drawBatterySymbol(30, 120, getBatteryPercentage());
+    */
+    }
+
+void Display::clearDisplay()
+{
+    tft.fillScreen(TFT_BLACK);
+}
+
+void Display::drawString(String text, int x, int y, int color)
+{
+    tft.setTextColor(color, TFT_BLACK); // Set text color and background
+    tft.drawString(text, x, y, 2);      // Use the internal library drawString with the specified font size
+    //x an y are the coordinates of the top-left corner of the text
+}
+
+void Display::drawStringg(String text, int x, int y, int size)
+{
+    tft.setTextColor(TFT_WHITE, TFT_BLACK); // Set text color and background
+    tft.drawString(text, x, y, size);      // Use the internal library drawString with the specified font size
+    //x an y are the coordinates of the top-left corner of the text
+}
+
+void Display::drawDateTimeLock(struct tm *timeinfo)
+{
+    char timeBuffer[6]; // HH:MM
+    char dateBuffer[9]; // YYYY-MM-DD
+    snprintf(timeBuffer, sizeof(timeBuffer), "%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min);
+    //snprintf(dateBuffer, sizeof(dateBuffer), "%04d-%02d-%02d", timeinfo->tm_year + 1900 , timeinfo->tm_mon + 1, timeinfo->tm_mday);
+    snprintf(dateBuffer, sizeof(dateBuffer), "%02d-%02d-%02d", timeinfo->tm_mday, timeinfo->tm_mon + 1,  timeinfo->tm_year - 100);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.drawString(String(timeBuffer), 60, 45, 6);
+    tft.drawString(String(dateBuffer), 70, 85, 4);
+}
+
+void Display::drawCircle(int x, int y, int radius, uint16_t color)
+{
+    tft.drawCircle(x, y, radius, color);
+
+    vTaskDelay(1000); // Optional: Add a small delay to visualize the drawing process
+    //Now erase the crcle.
+    //Remove the cicle, make it dissappear suddenly.
+    //Draw a black circle over the previous circle to erase it.
+    tft.drawCircle(x, y, radius, TFT_BLACK);
+   // Serial.printf("Circle at X: %d, Y: %d, Radius: %d erased\n", x, y, radius);
+}
+
+//Predefined: existed before i could change any shit.
+//inbuilt methods for drawing symbols on the display, you can modify these or add new ones as needed
 void Display::drawWiFiSymbol(int x, int y, uint16_t color)
 {
     int r1 = 8;
@@ -73,6 +136,16 @@ void Display::drawClockSymbol(int x, int y, uint16_t color)
     tft.drawLine(x, y, min_x, min_y, color);
 }
 
+void Display::drawStopWatchTime(int seconds, int minutes, int hours)
+{
+    //Serial.printf("Stopwatch Time: %02d:%02d:%02d\n", hours, minutes, seconds);
+    char timeBuffer[9]; // HH:MM:SS
+    snprintf(timeBuffer, sizeof(timeBuffer), "%02d:%02d:%02d ", hours, minutes, seconds);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.drawString(String(timeBuffer), 20, 95, 6);
+
+}
+
 void Display::drawFitnessSymbol(int x, int y, uint16_t color)
 {
     int box_w = 40;
@@ -86,14 +159,30 @@ void Display::drawFitnessSymbol(int x, int y, uint16_t color)
     tft.drawLine(cx - w / 2, cy, cx - w / 4, cy, color);
     tft.drawLine(cx - w / 4, cy, cx - w / 8, cy - h / 2, color);
     tft.drawLine(cx - w / 8, cy - h / 2, cx, cy + h / 2, color);
-    tft.drawLine(cx, cy + h / 2, cx + w / 8, cy - h / 3, color);
-    tft.drawLine(cx + w / 8, cy - h / 3, cx + w / 2, cy, color);
+    tft.drawLine(cx, cy + h / 2, cx + w / 8, cy, color);
+    tft.drawLine(cx + w / 8, cy , cx + w / 2, cy, color);
+    //
+}
+
+void Display::drawTestInRectable(String s, int x, int y, uint16_t color)
+{//x and y are the top right coordinates of the rectangle
+   // the width of the box should be as per the length of the string
+   // the height  of the box is fixed for font size 2, which is 16 pixels. So the height of the box is 16 pixels.
+    tft.setTextColor(color, TFT_BLACK); // Set text color and background
+    int size = 2; int width = 7; int height = 20; // Font size
+    if(color == TFT_LIGHTGREY)
+    {  size = 4;
+        width = 12;
+        height = 28;
+    }
+    tft.drawString(s, x + 2, y + 2, size); // Draw the string with a small offset for padding
+    tft.drawRoundRect(x, y, s.length() * width, height, 4, color);
 }
 
 void Display::drawBatterySymbol(int x, int y, int battery, uint16_t color)
 {
-    int box_w = 50;
-    int box_h = 24;
+    int box_w = 40;
+    int box_h = 19;
     int corner_r = 4;
     int terminal_w = 4;
     tft.drawRoundRect(x - box_w / 2, y - box_h / 2, box_w, box_h, corner_r, color);
