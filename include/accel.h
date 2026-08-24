@@ -20,8 +20,4 @@ public:
     float getTemperature();
     uint32_t stepsCount();
 private:
-    /**
-     * TODO
-     * WRITE YOUR PRIVATE MEMBERS AND FUNCTIONS HEADERS HERE
-     */
 };
