@@ -17,10 +17,6 @@ void syncTimeWithNTP();
 uint8_t decToBcd(uint8_t val);
 uint8_t bcdToDec(uint8_t val);
 
-/**
-* TODO
-* CREATE YOUR FUNCTION HEADERS HERE
-*/
 
 #ifdef __cplusplus
 }
