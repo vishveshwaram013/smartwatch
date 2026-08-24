@@ -4,13 +4,6 @@
 
 class MyWifi {
 public:
-/**
- * TODO
- * WRITE YOUR PUBLIC MEMBERS AND FUNCTION HEADERS HERE
- */
+void syncTimeWithNTP();
 private:
-/**
- * TODO
- * WRITE YOUR PRIVATE MEMBERS AND FUNCTIONS HEADERS HERE
- */
 };
